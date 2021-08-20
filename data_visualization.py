@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, Button
 
 import random
+from matplotlib.animation import FuncAnimation
 
 class Object:
     def __init__(self, x, y, time, id, is_global):
@@ -30,10 +31,14 @@ objects = []
 time_ms = 10000
 t_0 = time_ms
 
+is_global_obj = False
+
 for i in range(100, 1, -1):
     time_ms += 100
-    objects.append(Object(i, 0, time_ms, 1, True))
-    objects.append(Object(random.randrange(0, 100), random.randrange(-10, 10), time_ms, 1, False))
+    if i < 70:
+        is_global_obj = True
+    objects.append(Object(i, 0, time_ms, 1, is_global_obj))
+    # objects.append(Object(random.randrange(0, 100), random.randrange(-10, 10), time_ms, 1, False))
 
 
 packs = []
@@ -72,25 +77,36 @@ sldr = Slider(ax=axSlider,
 def update_data(val):
     t_prev = t_0
     cur_pack = []
+    history_packs = []
     for pack_ in packs:
         if t_prev < val and val <= pack_.timestamp:
             cur_pack = pack_
+            break
+
+        history_packs.append(pack_)
         t_prev = pack_.timestamp
 
-    pnts_g = []
-    pnts_c = []
 
-    for obj_plot in cur_pack.objects:
-        if (obj_plot.is_global):
-            pnts_g.append([obj_plot.y, obj_plot.x])
-        else:
-            pnts_c.append([obj_plot.y, obj_plot.x])
+    pnts_g_x = []
+    pnts_g_y = []
+    pnts_c_x = []
+    pnts_c_y = []
 
-    for pnt in pnts_g:
-        pnts_global.set_data(pnt)
-    for pnt in pnts_c:
-        pnts_candidate.set_data(pnt)
+    for history_pack in history_packs:
+        for obj_plot in history_pack.objects:
+            if (obj_plot.is_global):
+                pnts_g_x.append(obj_plot.y)
+                pnts_g_y.append(obj_plot.x)
+            else:
+                pnts_c_x.append(obj_plot.y)
+                pnts_c_y.append(obj_plot.x)
+
+    pnts_global.set_data(pnts_g_x, pnts_g_y)
+    pnts_candidate.set_data(pnts_c_x, pnts_c_y)
+
     plt.draw()
+
+    return pnts_global
 
 sldr.on_changed(update_data)
 
