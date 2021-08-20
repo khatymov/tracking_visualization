@@ -36,15 +36,23 @@ p, = plt.plot(y, x, "-bo")
 
 axSlider = plt.axes([0.1, 0.2, 0.8, 0.05])
 
-sldr = Slider(ax     = axSlider,
-              label  = "Time",
-              valmin = 0,
-              valmax = time_ms - t_0,
-              color  = "green")
+sldr = Slider(ax=axSlider,
+              label="Time",
+              valmin=t_0,
+              valmax=time_ms,
+              valstep=1,
+              color="green")
 
 def update_data(val):
     y_val = sldr.val
-    p.set_ydata(y_val)
+    y = 0
+    t_prev = t_0
+    for obj in objects:
+        if t_prev < val and val <= obj.time:
+            pnt = [obj.y, obj.x]
+        t_prev = obj.time
+
+    p.set_data(pnt)
     plt.draw()
 
 sldr.on_changed(update_data)
