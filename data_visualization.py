@@ -1,54 +1,30 @@
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider, Button
+from matplotlib.widgets import Slider
 
-import random
-from matplotlib.animation import FuncAnimation
 import copy
+import csv
 
-class Object:
-    def __init__(self, x, y, time, id, is_global):
-        self.x = x
-        self.y = y
-        self.time = time
-        self.id = id
-        self.is_global = is_global
-
-
-class PackObjects:
-    def __init__(self, timestamp):
-        self.timestamp = timestamp
-        self.objects = []
-
-    def append(self, obj):
-        self.objects.append(obj)
-        self.timestamp = obj.time
-
-    def clear(self):
-        self.objects.clear()
-        self.timestamp = 0
+from objects import Object, PackObjects
 
 objects = []
 
-time_ms = 10000
-t_0 = time_ms
+#fill data
+with open('/work/fusion/as_main_module_sf/sensor_fusion3/cmake-build-release/data.csv') as csv_file:
+    csv_reader = csv.reader(csv_file, delimiter=',')
+    for row in csv_reader:
+        if len(row) != 5:
+            continue
+        #x, y, time, id, is_global
+        objects.append(Object(float(row[1]), float(row[2]), int(row[0]), int(row[3]), row[4] == "1"))
 
-is_global_obj = False
 
-for i in range(100, 40, -1):
-    time_ms += 100
-    if i < 70:
-        is_global_obj = True
-    objects.append(Object(i, 0, time_ms, 1, is_global_obj))
-    objects.append(Object(i - 20, -10, time_ms, 2, is_global_obj))
+objects.sort()
 
-is_global_obj = False
+t_min = objects[0].time
 
-for i in range(140, 100, -1):
-    time_ms += 100
-    if i < 20:
-        is_global_obj = True
-    objects.append(Object(i, 0, time_ms, 3, is_global_obj))
-    objects.append(Object(i - 20, -10, time_ms, 4, is_global_obj))
+for obj in objects:
+    obj.time = obj.time-t_min
+    obj.time = float(obj.time)/1e6
 
 packs = []
 cur_time = objects[0].time
@@ -65,22 +41,21 @@ for obj in objects:
         pack.append(obj)
         cur_time = obj.time
 
-
 fig, ax = plt.subplots()
 plt.subplots_adjust(bottom=0.35)
 plt.axis([-25, 25, -1, 150])
 
 pnts_global, = plt.plot([], [], "bo")
 
-pnts_candidate, = plt.plot([], [], "ro", mfc='none')
+pnts_candidate, = plt.plot([], [], "ko", mfc='none',  alpha=0.1)
 
 axSlider = plt.axes([0.1, 0.2, 0.8, 0.05])
 
 sldr = Slider(ax=axSlider,
               label="Time",
-              valmin=t_0,
-              valmax=time_ms,
-              valstep=1,
+              valmin=objects[0].time,
+              valmax=objects[-1].time,
+              valstep=0.1,
               color="green")
 
 def filter_history(ids, history):
@@ -100,7 +75,7 @@ def filter_history(ids, history):
     return new_history
 
 def update_data(val):
-    t_prev = t_0
+    t_prev = objects[0].time
     cur_pack = []
     history_packs = []
     for pack_ in packs:
@@ -135,7 +110,6 @@ def update_data(val):
     pnts_candidate.set_data(pnts_c_x, pnts_c_y)
 
     plt.draw()
-
 
 sldr.on_changed(update_data)
 
