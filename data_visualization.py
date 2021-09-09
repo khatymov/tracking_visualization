@@ -1,45 +1,14 @@
 import matplotlib.pyplot as plt
+import copy
+
 from matplotlib.widgets import Slider
 
-import copy
-import csv
-
-from objects import Object, PackObjects
-
-objects = []
-
-#fill data
-with open('/work/fusion/as_main_module_sf/sensor_fusion3/cmake-build-release/data.csv') as csv_file:
-    csv_reader = csv.reader(csv_file, delimiter=',')
-    for row in csv_reader:
-        if len(row) != 5:
-            continue
-        #x, y, time, id, is_global
-        objects.append(Object(float(row[1]), float(row[2]), int(row[0]), int(row[3]), row[4] == "1"))
+from read_file_data import get_csv_data
+from packs_objects import get_packs
 
 
-objects.sort()
-
-t_min = objects[0].time
-
-for obj in objects:
-    obj.time = obj.time-t_min
-    obj.time = float(obj.time)/1e6
-
-packs = []
-cur_time = objects[0].time
-
-pack = PackObjects(cur_time)
-
-for obj in objects:
-    if cur_time == obj.time:
-        pack.append(obj)
-    else:
-        pack.timestamp = cur_time
-        packs.append(pack)
-        pack = PackObjects(cur_time)
-        pack.append(obj)
-        cur_time = obj.time
+objects = get_csv_data('/work/fusion/as_main_module_sf/sensor_fusion3/cmake-build-release/data.csv')
+packs = get_packs(objects)
 
 fig, ax = plt.subplots()
 plt.subplots_adjust(bottom=0.35)
@@ -48,11 +17,9 @@ plt.gca().invert_xaxis()
 ax.set_aspect('equal')
 
 pnts_global, = plt.plot([], [], "bo")
-
 pnts_candidate, = plt.plot([], [], "ko", mfc='none',  alpha=0.1)
 
 axSlider = plt.axes([0.1, 0.2, 0.8, 0.05])
-
 sldr = Slider(ax=axSlider,
               label="Time, sec",
               valmin=objects[0].time,
@@ -118,4 +85,9 @@ sldr.on_changed(update_data)
 plt.show()
 
 
+def draw():
+    print("")
+
+if __name__== "__main__":
+  draw()
 
