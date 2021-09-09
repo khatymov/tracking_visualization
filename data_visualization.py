@@ -43,7 +43,9 @@ for obj in objects:
 
 fig, ax = plt.subplots()
 plt.subplots_adjust(bottom=0.35)
-plt.axis([-25, 25, -1, 150])
+plt.axis([-50, 50, -1, 150])
+plt.gca().invert_xaxis()
+ax.set_aspect('equal')
 
 pnts_global, = plt.plot([], [], "bo")
 
@@ -52,7 +54,7 @@ pnts_candidate, = plt.plot([], [], "ko", mfc='none',  alpha=0.1)
 axSlider = plt.axes([0.1, 0.2, 0.8, 0.05])
 
 sldr = Slider(ax=axSlider,
-              label="Time",
+              label="Time, sec",
               valmin=objects[0].time,
               valmax=objects[-1].time,
               valstep=0.1,
