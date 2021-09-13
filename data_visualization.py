@@ -11,8 +11,8 @@ from objects import ObjectClass
 sensor_display_time = 5.0
 
 use_display_time = True
-display_time_start = 600.0
-display_time_end = 700.0
+display_time_start = 0.0
+display_time_end = 130.0
 
 def draw():
     objects = get_csv_data('/work/fusion/as_main_module_sf/sensor_fusion3/cmake-build-release/data.csv')
@@ -46,7 +46,7 @@ def draw():
     ann_list = []
 
     def update_data(val):
-        t_prev = objects[0].time
+        t_prev = objects[0].timestamp
         cur_pack = []
         history_packs = []
         for pack in packs:
@@ -70,6 +70,7 @@ def draw():
         pnts_g_x = [] #points global Ox
         pnts_g_y = [] #points global Oy
 
+
         for history_pack in new_history_packs:
             for obj_plot in history_pack.objects:
                 if (obj_plot.is_global):
@@ -87,6 +88,8 @@ def draw():
         pnts_candidate.set_data(pnts_c_x, pnts_c_y)
         pnts_global.set_data(pnts_g_x, pnts_g_y)
 
+        # plt.plot(pnts_g_x, pnts_g_y, "y")
+
         for i, a in enumerate(ann_list):
             a.remove()
         ann_list[:] = []
@@ -98,9 +101,10 @@ def draw():
                     ch_cntr = " "
                     for i in range(0, (len(obj_plot.channel_cntr)), 2):
                         ch_cntr += obj_plot.channel_cntr[i][0:3] + ":" + obj_plot.channel_cntr[i+1] + ";"
-                    ann = ax.annotate(str(obj_plot.id) + "\n" + (ObjectClass.get(obj_plot.id_class)) + ch_cntr, (obj_plot.y, obj_plot.x), xytext =(obj_plot.y -3, obj_plot.x + 2), color = "black", fontsize = 6)
+                    ann = ax.annotate(str(obj_plot.id) + "\n" + (ObjectClass.get(obj_plot.id_class)) + ch_cntr, (obj_plot.y, obj_plot.x), xytext=(obj_plot.y - 0.5, obj_plot.x), color = "black", fontsize = 6)
                     main_ids.append(obj_plot.id)
                     ann_list.append(ann)
+                    print(str(obj_plot.id) + " " + str(obj_plot.old_ts))
 
         plt.draw()
 
@@ -116,7 +120,7 @@ def filter_history(ids, history):
         for obj in pack.objects:
             if (obj.id not in ids) and (obj.is_measurement == False):
                 del_index.append(i)
-            elif obj.is_measurement and new_history[-1].timestamp - obj.time >= sensor_display_time:
+            elif obj.is_measurement and new_history[-1].timestamp - obj.timestamp >= sensor_display_time:
                 del_index.append(i)
 
             i += 1

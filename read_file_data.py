@@ -17,11 +17,12 @@ def get_csv_data(path):
 
     objects.sort()
 
-    t_min = objects[0].time
+    t_min = objects[0].timestamp
 
     for obj in objects:
-        obj.time = obj.time - t_min
-        obj.time = float(obj.time) / 1e6
+        obj.old_ts = obj.timestamp
+        obj.timestamp = obj.timestamp - t_min
+        obj.timestamp = float(obj.timestamp) / 1e6
 
     return objects
 
