@@ -10,9 +10,10 @@ def get_csv_data(path):
         csv_reader = csv.reader(csv_file, delimiter=',')
         for row in csv_reader:
             if len(row) < 6 or row[0] == "ts":
+                print(row)
                 continue
-            #time, x, y, id, is_global
-            objects.append(Object(int(row[0]), float(row[1]), float(row[2]), int(row[3]), row[4] == "1"))
+            #ts, x, y, id, id_class, is_global, ,channel_0, counter_0, channel_1, counter_1, ..
+            objects.append(Object(int(row[0]), float(row[1]), float(row[2]), int(row[3]), int(row[4]), row[5] == "1", row[7:]))
 
     objects.sort()
 
