@@ -1,9 +1,9 @@
 
 class Object:
-    def __init__(self, x, y, time, id, is_global):
+    def __init__(self, time, x, y, id, is_global):
+        self.time = time
         self.x = x
         self.y = y
-        self.time = time
         self.id = id
         self.is_global = is_global
 

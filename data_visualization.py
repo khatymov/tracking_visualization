@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+import matplotlib.ticker as plticker
+import numpy as np
 import copy
 
 from matplotlib.widgets import Slider
@@ -12,10 +14,19 @@ def draw():
     packs = get_packs(objects)
 
     fig, ax = plt.subplots()
+    plt.grid()
     plt.subplots_adjust(bottom=0.35)
     plt.axis([-50, 50, -1, 150])
+    #set steps for every Axis
+    x_ticks = np.arange(-50, 50, 10)
+    plt.xticks(x_ticks)
+    y_ticks = np.arange(0, 150, 10)
+    plt.yticks(y_ticks)
+
     plt.gca().invert_xaxis()
     ax.set_aspect('equal')
+    # loc = plticker.MultipleLocator(base=10.0)
+    # ax.xaxis.set_major_locator(loc)
 
     pnts_global, = plt.plot([], [], "bo")
     pnts_candidate, = plt.plot([], [], "ko", mfc='none', alpha=0.1)
