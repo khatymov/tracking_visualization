@@ -14,14 +14,14 @@ class PackObjects:
         self.timestamp = 0
 
 
-def get_packs(objects, ts_start, ts_end):
+def get_packs(objects, time_frame_use, ts_start, ts_end):
     packs = []
     cur_time = objects[0].time
 
     pack = PackObjects(cur_time)
 
     for obj in objects:
-        if ts_start > obj.time or obj.time > ts_end:
+        if time_frame_use and (ts_start > obj.time or obj.time > ts_end):
             cur_time = obj.time
             continue
         if cur_time == obj.time:

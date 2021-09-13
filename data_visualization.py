@@ -10,12 +10,13 @@ from objects import ObjectClass
 
 sensor_display_time = 5.0
 
+use_display_time = True
 display_time_start = 600.0
 display_time_end = 700.0
 
 def draw():
     objects = get_csv_data('/work/fusion/as_main_module_sf/sensor_fusion3/cmake-build-release/data.csv')
-    packs = get_packs(objects, display_time_start, display_time_end)
+    packs = get_packs(objects, use_display_time, display_time_start, display_time_end)
 
     fig, ax = plt.subplots()
     plt.grid()
@@ -74,9 +75,7 @@ def draw():
                 if (obj_plot.is_global):
                     pnts_g_x.append(obj_plot.y)
                     pnts_g_y.append(obj_plot.x)
-                    # plt.annotate(str(obj_plot.id), (obj_plot.y, obj_plot.x))
-                elif (obj_plot.is_measurement == False):
-                    # print("candidate:" + obj_plot.id + obj_plot.is_measurement)
+                elif (obj_plot.id != -1):
                     pnts_c_x.append(obj_plot.y)
                     pnts_c_y.append(obj_plot.x)
                 else:
@@ -85,7 +84,6 @@ def draw():
 
 
         pnts_measurements.set_data(pnts_m_x, pnts_m_y)
-        # print("num c:" + str(len(pnts_c_x)))
         pnts_candidate.set_data(pnts_c_x, pnts_c_y)
         pnts_global.set_data(pnts_g_x, pnts_g_y)
 
