@@ -8,11 +8,11 @@ from read_file_data import get_csv_data
 from packs_objects import get_packs
 from objects import ObjectClass
 
-sensor_display_time = 5.0
+sensor_display_time = 10.0
 
-use_display_time = True
-display_time_start = 0.0
-display_time_end = 130.0
+use_display_time = False
+display_time_start = 970.0
+display_time_end = 1100.0
 
 def draw():
     objects = get_csv_data('/work/fusion/as_main_module_sf/sensor_fusion3/cmake-build-release/data.csv')
@@ -85,7 +85,7 @@ def draw():
 
 
         pnts_measurements.set_data(pnts_m_x, pnts_m_y)
-        pnts_candidate.set_data(pnts_c_x, pnts_c_y)
+        # pnts_candidate.set_data(pnts_c_x, pnts_c_y)
         pnts_global.set_data(pnts_g_x, pnts_g_y)
 
         # plt.plot(pnts_g_x, pnts_g_y, "y")
@@ -95,16 +95,15 @@ def draw():
         ann_list[:] = []
 
         main_ids = []
-        for history_pack in reversed(new_history_packs):
-            for obj_plot in reversed(history_pack.objects):
-                if (obj_plot.is_global and obj_plot.id not in main_ids):
-                    ch_cntr = " "
-                    for i in range(0, (len(obj_plot.channel_cntr)), 2):
-                        ch_cntr += obj_plot.channel_cntr[i][0:3] + ":" + obj_plot.channel_cntr[i+1] + ";"
-                    ann = ax.annotate(str(obj_plot.id) + "\n" + (ObjectClass.get(obj_plot.id_class)) + ch_cntr, (obj_plot.y, obj_plot.x), xytext=(obj_plot.y - 0.5, obj_plot.x), color = "black", fontsize = 6)
-                    main_ids.append(obj_plot.id)
-                    ann_list.append(ann)
-                    print(str(obj_plot.id) + " " + str(obj_plot.old_ts))
+        for obj_plot in reversed(new_history_packs[-1].objects):
+            if (obj_plot.is_global and obj_plot.id not in main_ids):
+                ch_cntr = " "
+                for i in range(0, (len(obj_plot.channel_cntr)), 2):
+                    ch_cntr += obj_plot.channel_cntr[i][0:3] + ":" + obj_plot.channel_cntr[i+1] + ";"
+                ann = ax.annotate(str(obj_plot.id) + "\n" + (ObjectClass.get(obj_plot.id_class)) + ch_cntr, (obj_plot.y, obj_plot.x), xytext=(obj_plot.y - 0.5, obj_plot.x), color = "black", fontsize = 6)
+                main_ids.append(obj_plot.id)
+                ann_list.append(ann)
+                print(str(obj_plot.id) + " " + str(obj_plot.old_ts))
 
         plt.draw()
 
