@@ -12,8 +12,8 @@ def get_csv_data(path):
             if len(row) < 6 or row[0] == "ts":
                 print(row)
                 continue
-            #ts, x, y, id, id_class, is_global, ,channel_0, counter_0, channel_1, counter_1, ..
-            objects.append(Object(int(row[0]), float(row[1]), float(row[2]), int(row[3]), int(row[4]), row[5] == "1", row[7:]))
+            #ts, x, y, id, id_class, is_global, is_obstacle, ,channel_0, counter_0, channel_1, counter_1, ..
+            objects.append(Object(int(row[0]), float(row[1]), float(row[2]), int(row[3]), int(row[4]), row[5] == "1", row[6] == "1", row[8:]))
 
     objects.sort()
 

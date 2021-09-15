@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import copy
+import sys
 
 from matplotlib.widgets import Slider
 
@@ -10,12 +11,12 @@ from objects import ObjectClass
 
 sensor_display_time = 10.0
 
-use_display_time = False
-display_time_start = 970.0
-display_time_end = 1100.0
+use_display_time = True
+display_time_start = 120.0
+display_time_end = 202.0
 
 def draw():
-    objects = get_csv_data('/work/fusion/as_main_module_sf/sensor_fusion3/cmake-build-release/data.csv')
+    objects = get_csv_data(sys.argv[1])
     packs = get_packs(objects, use_display_time, display_time_start, display_time_end)
 
     fig, ax = plt.subplots()
@@ -28,12 +29,14 @@ def draw():
     y_ticks = np.arange(0, 150, 10)
     plt.yticks(y_ticks)
 
+    plt.title(sys.argv[1].split('/')[-1])
+
     plt.gca().invert_xaxis()
     ax.set_aspect('equal')
 
-    pnts_measurements, = plt.plot([], [], "k1", mfc='none', alpha=0.01)
-    pnts_candidate, = plt.plot([], [], "bv", mfc='none', alpha=0.1)
-    pnts_global, = plt.plot([], [], "rp", mfc='none', alpha=0.3)
+    pnts_measurements, = plt.plot([], [], "k1", mfc='none', alpha=0.1)
+    pnts_glob, = plt.plot([], [], "bv", mfc='none', alpha=0.3)
+    pnts_glob_obstacle, = plt.plot([], [], "rp", mfc='none', alpha=0.5)
 
     axSlider = plt.axes([0.1, 0.2, 0.8, 0.05])
     sldr = Slider(ax=axSlider,
@@ -65,30 +68,27 @@ def draw():
 
         pnts_m_x = [] #points measurements Ox
         pnts_m_y = [] #points measurements Oy
-        pnts_c_x = [] #points candidate Ox
-        pnts_c_y = [] #points candidate Oy
         pnts_g_x = [] #points global Ox
         pnts_g_y = [] #points global Oy
+        pnts_g_obstcl_x = [] #points global obstacle Ox
+        pnts_g_obstcl_y = [] #points global obstacle Oy
 
 
         for history_pack in new_history_packs:
             for obj_plot in history_pack.objects:
-                if (obj_plot.is_global):
+                if (obj_plot.is_global and obj_plot.is_obstacle):
+                    pnts_g_obstcl_x.append(obj_plot.y)
+                    pnts_g_obstcl_y.append(obj_plot.x)
+                elif (obj_plot.is_global):
                     pnts_g_x.append(obj_plot.y)
                     pnts_g_y.append(obj_plot.x)
-                elif (obj_plot.id != -1):
-                    pnts_c_x.append(obj_plot.y)
-                    pnts_c_y.append(obj_plot.x)
-                else:
+                elif (obj_plot.is_measurement):
                     pnts_m_x.append(obj_plot.y)
                     pnts_m_y.append(obj_plot.x)
 
-
         pnts_measurements.set_data(pnts_m_x, pnts_m_y)
-        # pnts_candidate.set_data(pnts_c_x, pnts_c_y)
-        pnts_global.set_data(pnts_g_x, pnts_g_y)
-
-        # plt.plot(pnts_g_x, pnts_g_y, "y")
+        pnts_glob.set_data(pnts_g_x, pnts_g_y)
+        pnts_glob_obstacle.set_data(pnts_g_obstcl_x, pnts_g_obstcl_y)
 
         for i, a in enumerate(ann_list):
             a.remove()
@@ -96,14 +96,16 @@ def draw():
 
         main_ids = []
         for obj_plot in reversed(new_history_packs[-1].objects):
-            if (obj_plot.is_global and obj_plot.id not in main_ids):
+            if (obj_plot.is_obstacle and obj_plot.id not in main_ids):
                 ch_cntr = " "
                 for i in range(0, (len(obj_plot.channel_cntr)), 2):
                     ch_cntr += obj_plot.channel_cntr[i][0:3] + ":" + obj_plot.channel_cntr[i+1] + ";"
                 ann = ax.annotate(str(obj_plot.id) + "\n" + (ObjectClass.get(obj_plot.id_class)) + ch_cntr, (obj_plot.y, obj_plot.x), xytext=(obj_plot.y - 0.5, obj_plot.x), color = "black", fontsize = 6)
                 main_ids.append(obj_plot.id)
                 ann_list.append(ann)
-                print(str(obj_plot.id) + " " + str(obj_plot.old_ts))
+                print(str(obj_plot.id) + " " + str(obj_plot.old_ts) + " obstacle")
+            elif obj_plot.is_global:
+                print(str(obj_plot.id) + " " + str(obj_plot.old_ts) + " not obstacle")
 
         plt.draw()
 

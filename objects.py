@@ -1,6 +1,6 @@
 
 class Object:
-    def __init__(self, time, x, y, id, id_class, is_global, ch_counter):
+    def __init__(self, time, x, y, id, id_class, is_global, is_obstacle, ch_counter):
         self.timestamp = time
         self.x = x
         self.y = y
@@ -8,6 +8,7 @@ class Object:
         self.is_measurement = bool(id == -1)
         self.id_class = id_class
         self.is_global = is_global
+        self.is_obstacle = is_obstacle
         self.channel_cntr = ch_counter
         self.old_ts = 0
 
